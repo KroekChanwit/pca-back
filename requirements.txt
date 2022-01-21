@@ -1,0 +1,28 @@
+# This file may be used to create an environment using:
+# $ conda create --name <env> --file <this file>
+# conda list -e > requirements.
+# conda create --name cc --file .\requirements.txt
+# platform: osx-64
+asgiref
+ca-certificates
+certifi
+django
+krb5
+# libcxx
+# libedit
+libffi
+libpq
+# ncurses
+openssl
+pip
+psycopg2
+python
+pytz
+# readline
+setuptools
+sqlite
+sqlparse
+tk
+wheel
+xz
+zlib
