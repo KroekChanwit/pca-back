@@ -126,16 +126,16 @@ WSGI_APPLICATION = 'server.wsgi.application'
 # Database
 # https://docs.djangoproject.com/en/3.1/ref/settings/#databases
 
-DATABASES = {
-    'default': {
-        'ENGINE': 'django.db.backends.postgresql_psycopg2',
-        'NAME': 'cross-care', 
-        'USER': 'cc', 
-        'PASSWORD': 'lPIn23IZwnY978G6',
-        'HOST': 'cross-care-do-user-10292029-0.b.db.ondigitalocean.com', 
-        'PORT': '25060',
-    }
-}
+# DATABASES = {
+#     'default': {
+#         'ENGINE': 'django.db.backends.postgresql_psycopg2',
+#         'NAME': 'cross-care', 
+#         'USER': 'cc', 
+#         'PASSWORD': 'lPIn23IZwnY978G6',
+#         'HOST': 'cross-care-do-user-10292029-0.b.db.ondigitalocean.com', 
+#         'PORT': '25060',
+#     }
+# }
 
 
 # Password validation
