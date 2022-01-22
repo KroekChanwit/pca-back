@@ -67,6 +67,7 @@ import datetime
 import glob
 import itertools
 # import matplotlib.pylab as plt
+import matplotlib.pyplot as plt
 import numpy as np
 import pandas as pd
 from keras.models import Model, load_model
@@ -78,113 +79,59 @@ class PCa(generics.RetrieveUpdateDestroyAPIView):
     @api_view(['POST'])
     @permission_classes((AllowAny, ))
     def uploadImage(request):
-
-        file = request.FILES['image']
-        fs = FileSystemStorage()
-        filename = fs.save(file.name, file)
-
-        # base_model_dir = 'C:\\Users\\Chanwit\\Desktop\\project\\Model'
-
-        # weight_list = list(glob.glob(os.path.join(base_model_dir, '*40-05*.hdf5'), recursive=True))
-        # weight_list.sort()      
-
-        # print(weight_list)
-
-        # print("Loading weights to models")
-        # model_list = list()
-        # for weight_path in weight_list:
-        #         print()
-        #         print(os.path.basename(weight_path))
-        #         model = load_model(weight_path)
-        #         model_list.append(model)
-
-        # print("Load done.")
-        # def prepare(filepath):
-        #         IMG_SIZE = 256
-        #         img_array = cv2.imread(filepath, cv2.IMREAD_GRAYSCALE)
-        #         new_array = cv2.resize(img_array, (IMG_SIZE, IMG_SIZE))
-        #         return new_array.reshape(-1, IMG_SIZE, IMG_SIZE, 1)
-
-        # img = cv2.imread('C:\\Users\\Chanwit\\Desktop\\pca-project\\pca-back\\media\\002040_002550.jpg')
-
-        model = load_model('C:\\Users\\Chanwit\\Desktop\\project\\Model\\backup_model_train-299-40-01-2classes-new_Xception_132_200ep.hdf5')
-        # prediction = model.predict([prepare('002040_002550.jpg')])
-
-        test_image = image.load_img('C:\\Users\\Chanwit\\Desktop\\pca-project\\pca-back\\media\\Benign.png', target_size = (299, 299))
-        test_image = image.img_to_array(test_image)
-        test_image = np.expand_dims(test_image, axis = 0)
-        result = model.predict(test_image)
-
-        print(result)
-
-        if(result[0][0] == 0):
-                prediction = 'Benign'
-                print(prediction)
-        else:
-                prediction = 'Malignant'
-                print(prediction)
-        # print(prediction)
-        # model.compile(optimizer='adam',
-        #       loss=tf.keras.losses.SparseCategoricalCrossentropy(from_logits=True),
-        #       metrics=['accuracy'])
         
-        # model_fit = model.fit(img,
-        #                         steps_per_epoch = 3,
-        #                         epochs = 10)
+        ########## receive image from frontend ##########
 
-        # val = model.predict(img)
-        # print(val)
-        
+        # file = request.FILES['image']
+        # fs = FileSystemStorage()
+        # filename = fs.save(file.name, file)
 
-        # # test_img = img.reshape((1,299))
-
-        # img_class = model.predict_classes(test_img)
-        # prediction = img_class[0]
-        # classname = img_class[0]
-        # print("Class: ",classname)
-        # # img = img.reshape((299,299))
-        # plt.imshow(img)
-        # plt.title(classname)
-        # plt.show()
-
-#         window_name = 'image'
-
-#         Using cv2.imshow() method 
-#         Displaying the image 
-#         cv2.imshow(window_name, img)
-
-        # classes = model.predict_classes(img)
-
-        # print(classes)
-        # im = Image.open("C:\\Users\\Chanwit\\Desktop\\pca-project\\pca-back\\media\\" + filename)
+        # im = Image.open("C:\\Users\\User\\Desktop\\pca-project\\pca-back\\media\\" + filename)
         # im.show()
 
+        ########## Pre-Processing test data same as train data. ##########
+
+        #img_width=256
+        #img_height=256
+
+        base_model_dir = 'C:\\Users\\User\\Desktop\\model\\'
+        path = 'C:\\Users\\user\\Desktop\\pca-project\\pca-back\\media\\Malignant.png'
+
+        weight_list = list(glob.glob(os.path.join(base_model_dir, '*40-01*.hdf5'), recursive=True))
+        weight_list.sort()
+
+        print("Loading weights to models")
+        model_list = list()
+        for weight_path in weight_list:
+                print()
+                print(os.path.basename(weight_path))
+                model = load_model(weight_path)
+                model_list.append(model)
+
+        print("Load done.")
+
+        # model = load_model('C:\\Users\\User\\Desktop\\Model\\backup_model_train-299-40-01-2classes-new_ResNet50_175_200ep.hdf5')
+        model.compile(optimizer='adam',loss='categorical_crossentropy',metrics=['accuracy'])
+        
+        def prepare(img_path):
+                img = image.load_img(img_path, target_size=(299,299))
+                x = image.img_to_array(img)
+                x = x/255
+                return np.expand_dims(x, axis=0)
+
+        result = model.predict([prepare(path)])
+        d=image.load_img(path)
+        plt.imshow(d)
+        x=np.argmax(result,axis=1)
+        print(x)
+
+        res = model.predict([prepare(path)])
+        results = [[i,r] for i,r in enumerate(res)]
+        results.sort(key=lambda x: x[1], reverse=True)
+        for r in results:
+                print(str(r[1]))
+
         return Response(status=status.HTTP_200_OK)
-        ################################ Database BHH can read only
-        ################################ Connect database from BDMS (wifi: BDMS_APP)
-
-        # 'postgres://bhhsepsis:sepsis@bhh@10.141.13.3:5432/imed_bhh'
-
-        # obj = {"databasename":"imed_bhh","ip":"10.141.13.3","port":"5432","username":"bhhsepsis","password":"sepsis@bhh"}
-
-        # try:
-        #     connect = connect_db(obj)
-        #     con = connect.cursor()
-        #     con.execute(f"""
-        #     SELECT bhh_cc_json_patient_profile('07-01-021535')
-        #     """)
-        #     connect.commit()
-
-        #     result = con.fetchall()
-
-        #     con.close()
-
-        #     return Response(result,status=status.HTTP_200_OK)
-
-        # except NameError:
-        #     print(NameError)
-        #     return Response(status=status.HTTP_422_UNPROCESSABLE_ENTITY)
-
 
 # def insert_api(request, status):
 
