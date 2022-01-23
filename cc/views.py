@@ -86,16 +86,19 @@ class PCa(generics.RetrieveUpdateDestroyAPIView):
         fs = FileSystemStorage()
         filename = fs.save(file.name, file)
 
-        path_media = 'C:\\Users\\Chanwit\\Desktop\\pca-project\\pca-back\\media\\'
+        # path_media = 'C:\\Users\\Chanwit\\Desktop\\pca-project\\pca-back\\media\\'
+        path_media = 'C:\\Users\\User\\Desktop\\pca-project\\pca-back\\media\\'
+
         path = os.path.join(path_media, filename)
 
-        base_model_dir = 'C:\\Users\\Chanwit\\Desktop\\project\\Model\\'
+        # base_model_dir = 'C:\\Users\\Chanwit\\Desktop\\project\\Model\\'
+        base_model_dir = 'C:\\Users\\User\\Desktop\\Model\\'
 
-        # model1 = load_model(base_model_dir + 'backup_model_train-299-40-01-2classes-new_InceptionResNetV2_780_200ep.hdf5')
-        model2 = load_model(base_model_dir + 'backup_model_train-299-40-01-2classes-new_InceptionV3_311_200ep.hdf5')
-        model3 = load_model(base_model_dir + 'backup_model_train-299-40-01-2classes-new_ResNet50_175_200ep.hdf5')
-        model4 = load_model(base_model_dir + 'backup_model_train-299-40-01-2classes-new_ResNet50V2_190_200ep.hdf5')
-        model5 = load_model(base_model_dir + 'backup_model_train-299-40-01-2classes-new_Xception_132_200ep.hdf5')
+        # model1 = load_model(base_model_dir + 'backup_model_train-299-40-04-2classes-new_InceptionResNetV2_780_200ep.hdf5')
+        model2 = load_model(base_model_dir + 'backup_model_train-299-40-04-2classes-new_InceptionV3_311_200ep.hdf5')
+        model3 = load_model(base_model_dir + 'backup_model_train-299-40-04-2classes-new_ResNet50_175_200ep.hdf5')
+        model4 = load_model(base_model_dir + 'backup_model_train-299-40-04-2classes-new_ResNet50V2_190_200ep.hdf5')
+        model5 = load_model(base_model_dir + 'backup_model_train-299-40-04-2classes-new_Xception_132_200ep.hdf5')
 
         def prepare(img_path):
                 img = image.load_img(img_path, target_size=(299,299))
@@ -124,6 +127,7 @@ class PCa(generics.RetrieveUpdateDestroyAPIView):
         # print("Load done.")
 
         # model = load_model('C:\\Users\\Chanwit\\Desktop\\project\\Model\\backup_model_train-299-40-01-2classes-new_ResNet50_175_200ep.hdf5')
+        # model = load_model('C:\\Users\\User\\Desktop\\Model\\backup_model_train-299-40-01-2classes-new_ResNet50_175_200ep.hdf5')
         # model.compile(optimizer='adam',loss='categorical_crossentropy',metrics=['accuracy'])
         
         # def prepare(img_path):
@@ -143,6 +147,14 @@ class PCa(generics.RetrieveUpdateDestroyAPIView):
         # results.sort(key=lambda x: x[1], reverse=True)
         # for r in results:
         #         print(str(r[1]))
+
+        # result_image = []
+        # result_image.append(x)
+        
+        # if(x==0):
+        #         result_image.append(str(r[1][0]))
+        # else:
+        #         result_image.append(str(r[1][1]))
 
         return Response(status=status.HTTP_200_OK)
 
