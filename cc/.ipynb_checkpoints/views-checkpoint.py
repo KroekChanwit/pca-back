@@ -91,11 +91,11 @@ class PCa(generics.RetrieveUpdateDestroyAPIView):
 
         base_model_dir = 'C:\\Users\\Chanwit\\Desktop\\project\\Model\\'
 
-        # model1 = load_model(base_model_dir + 'backup_model_train-299-40-01-2classes-new_InceptionResNetV2_780_200ep.hdf5')
-        model2 = load_model(base_model_dir + 'backup_model_train-299-40-01-2classes-new_InceptionV3_311_200ep.hdf5')
-        model3 = load_model(base_model_dir + 'backup_model_train-299-40-01-2classes-new_ResNet50_175_200ep.hdf5')
-        model4 = load_model(base_model_dir + 'backup_model_train-299-40-01-2classes-new_ResNet50V2_190_200ep.hdf5')
-        model5 = load_model(base_model_dir + 'backup_model_train-299-40-01-2classes-new_Xception_132_200ep.hdf5')
+        # model1 = load_model('C:\\Users\\Chanwit\\Desktop\\project\\Model\\backup_model_train-299-40-01-2classes-new_InceptionResNetV2_780_200ep.hdf5')
+        model2 = load_model('C:\\Users\\Chanwit\\Desktop\\project\\Model\\backup_model_train-299-40-01-2classes-new_InceptionV3_311_200ep.hdf5')
+        model3 = load_model('C:\\Users\\Chanwit\\Desktop\\project\\Model\\backup_model_train-299-40-01-2classes-new_ResNet50_175_200ep.hdf5')
+        model4 = load_model('C:\\Users\\Chanwit\\Desktop\\project\\Model\\backup_model_train-299-40-01-2classes-new_ResNet50V2_190_200ep.hdf5')
+        model5 = load_model('C:\\Users\\Chanwit\\Desktop\\project\\Model\\backup_model_train-299-40-01-2classes-new_Xception_132_200ep.hdf5')
 
         def prepare(img_path):
                 img = image.load_img(img_path, target_size=(299,299))
@@ -103,9 +103,7 @@ class PCa(generics.RetrieveUpdateDestroyAPIView):
                 x = x/255
                 return np.expand_dims(x, axis=0)
 
-        # models = [model1, model2, model3, model4, model5]
         models = [model2, model3, model4, model5]
-        
         preds = [model.predict([prepare(path)]) for model in models]
         preds = np.array(preds)
         print(preds)
