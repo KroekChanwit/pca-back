@@ -1,4 +1,5 @@
 from os import name
+from pyexpat import model
 # from django.shortcuts import render
 from rest_framework import generics, serializers
 from rest_framework import permissions, status
@@ -57,7 +58,6 @@ from django.core.files.storage import FileSystemStorage
 
 # config database
 # obj = {"databasename":"cross-care","ip":"cross-care-do-user-10292029-0.b.db.ondigitalocean.com","port":"25060","username":"cc","password":"lPIn23IZwnY978G6"}
-from keras.models import load_model
 import tensorflow as tf
 from tensorflow import keras
 import os, sys
@@ -73,6 +73,17 @@ import pandas as pd
 from keras.models import Model, load_model
 from keras.preprocessing import image
 # from sklearn.metrics import accuracy_score
+from keras.applications.inception_resnet_v2 import InceptionResNetV2, preprocess_input
+
+base_model_dir = 'C:\\Users\\Chanwit\\Desktop\\project\\Model\\'
+        # base_model_dir = 'C:\\Users\\User\\Desktop\\Model\\'
+
+model1 = load_model(base_model_dir + 'backup_model_train-299-40-04-2classes-new_InceptionResNetV2_780_200ep.hdf5')
+model2 = load_model(base_model_dir + 'backup_model_train-299-40-04-2classes-new_InceptionV3_311_200ep.hdf5')
+model3 = load_model(base_model_dir + 'backup_model_train-299-40-04-2classes-new_ResNet50_175_200ep.hdf5')
+model4 = load_model(base_model_dir + 'backup_model_train-299-40-04-2classes-new_ResNet50V2_190_200ep.hdf5')
+model5 = load_model(base_model_dir + 'backup_model_train-299-40-04-2classes-new_Xception_132_200ep.hdf5')
+    
 
 class PCa(generics.RetrieveUpdateDestroyAPIView):
 
@@ -86,45 +97,51 @@ class PCa(generics.RetrieveUpdateDestroyAPIView):
         fs = FileSystemStorage()
         filename = fs.save(file.name, file)
 
-        # path_media = 'C:\\Users\\Chanwit\\Desktop\\pca-project\\pca-back\\media\\'
-        path_media = 'C:\\Users\\User\\Desktop\\pca-project\\pca-back\\media\\'
+        path_media = 'C:\\Users\\Chanwit\\Desktop\\pca-project\\pca-back\\media\\'
+        # path_media = 'C:\\Users\\User\\Desktop\\pca-project\\pca-back\\media\\'
 
-        path = os.path.join(path_media, filename)
+        path = os.path.join(path_media, filename)       
 
-        # base_model_dir = 'C:\\Users\\Chanwit\\Desktop\\project\\Model\\'
-        base_model_dir = 'C:\\Users\\User\\Desktop\\Model\\'
-
-        # model1 = load_model(base_model_dir + 'backup_model_train-299-40-04-2classes-new_InceptionResNetV2_780_200ep.hdf5')
-        model2 = load_model(base_model_dir + 'backup_model_train-299-40-04-2classes-new_InceptionV3_311_200ep.hdf5')
-        model3 = load_model(base_model_dir + 'backup_model_train-299-40-04-2classes-new_ResNet50_175_200ep.hdf5')
-        model4 = load_model(base_model_dir + 'backup_model_train-299-40-04-2classes-new_ResNet50V2_190_200ep.hdf5')
-        model5 = load_model(base_model_dir + 'backup_model_train-299-40-04-2classes-new_Xception_132_200ep.hdf5')
-
+        # print(model2.summary())
         def prepare(img_path):
                 img = image.load_img(img_path, target_size=(299,299))
                 x = image.img_to_array(img)
                 x = x/255
                 return np.expand_dims(x, axis=0)
 
-        # models = [model1, model2, model3, model4, model5]
-        models = [model2, model3, model4, model5]
+        models = [model1, model2, model3, model4, model5]
+        # models = [model2, model3, model4, model5]
         
+        # result2 = [model.predict([prepare(path)]) for model in models]
+        # x=np.argmax(result2,axis=1)
+        # print(x)
+
         preds = [model.predict([prepare(path)]) for model in models]
+        os.remove(path)
+
         preds = np.array(preds)
-        print(preds)
+        
+        # print(preds)
 
-        # weight_list = list(glob.glob(os.path.join(base_model_dir, '*40-01*.hdf5'), recursive=True))
-        # weight_list.sort()
+        sum_benign = 0
+        sum_malignant = 0
+        
+        for x in preds:
+                for y in x:
+                        sum_benign = sum_benign + y[0]
+                        sum_malignant = sum_malignant + y[1]
 
-        # print("Loading weights to models")
-        # model_list = list()
-        # for weight_path in weight_list:
-        #         print()
-        #         print(os.path.basename(weight_path))
-        #         model = load_model(weight_path)
-        #         model_list.append(model)
+        result_benign = np.around((sum_benign/5)*100, decimals=2)
+        result_malignant = np.around((sum_malignant/5)*100, decimals=2)
 
-        # print("Load done.")
+        result_image = []
+
+        if(result_benign > result_malignant):
+                result_image.append("Benign : ")
+                result_image.append(str(result_benign) + " %")
+        else:
+                result_image.append("Malignant : ")
+                result_image.append(str(result_malignant) + " %")
 
         # model = load_model('C:\\Users\\Chanwit\\Desktop\\project\\Model\\backup_model_train-299-40-01-2classes-new_ResNet50_175_200ep.hdf5')
         # model = load_model('C:\\Users\\User\\Desktop\\Model\\backup_model_train-299-40-01-2classes-new_ResNet50_175_200ep.hdf5')
@@ -136,27 +153,13 @@ class PCa(generics.RetrieveUpdateDestroyAPIView):
         #         x = x/255
         #         return np.expand_dims(x, axis=0)
 
-        # result = model.predict([prepare(path)])
-        # d=image.load_img(path)
-        # plt.imshow(d)
-        # x=np.argmax(result,axis=1)
-        # print(x)
-
         # res = model.predict([prepare(path)])
         # results = [[i,r] for i,r in enumerate(res)]
         # results.sort(key=lambda x: x[1], reverse=True)
         # for r in results:
         #         print(str(r[1]))
 
-        # result_image = []
-        # result_image.append(x)
-        
-        # if(x==0):
-        #         result_image.append(str(r[1][0]))
-        # else:
-        #         result_image.append(str(r[1][1]))
-
-        return Response(status=status.HTTP_200_OK)
+        return Response(result_image, status=status.HTTP_200_OK)
 
 # def insert_api(request, status):
 
