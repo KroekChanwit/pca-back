@@ -51,7 +51,6 @@ class PCa(generics.RetrieveUpdateDestroyAPIView):
                 filename = fs.save(file.name, file)
 
                 path_media = 'C:\\Users\\Chanwit\\Desktop\\pca-project\\pca-back\\media\\'
-
                 path = os.path.join(path_media, filename)       
 
                 def prepare(img_path):
@@ -61,43 +60,44 @@ class PCa(generics.RetrieveUpdateDestroyAPIView):
                         return np.expand_dims(x, axis=0)
 
                 preds = [model.predict([prepare(path)]) for model in model_list]
-                os.remove(path)
+                preds = np.array(preds)
 
                 print(preds)
 
-                preds = np.array(preds)
+                os.remove(path)
+
                 summed = np.sum(preds, axis=0)
-                result = np.argmax(summed, axis=1)
-                
-                print(result)
+                # result = np.argmax(summed, axis=1)
        
-                ideal_weights = [0.2, 0.4, 0.0, 0.0, 0.4]  ######## ปรับใหม่ * ไปรันโค้ด evaluate ใหม่ ของโมเดล Fold 4 เอา weight มาใส่ ########
-
+                ideal_weights = [0.0, 0.2, 0.1, 0.0, 0.4]
                 ideal_weighted_preds = np.tensordot(preds, ideal_weights, axes=((0),(0)))
-                # ideal_weighted_ensemble_prediction = np.argmax(ideal_weighted_preds, axis=1)
+                ideal_weighted_ensemble_prediction = np.argmax(ideal_weighted_preds, axis=1)
 
-                print(ideal_weighted_preds)
+                result_model = np.around(np.max(preds*100), decimals=2)
+                result_weighted = np.around(ideal_weighted_preds/0.7*100, decimals=2)
+                result_avg= np.around(summed/5*100, decimals=2)
 
-                sum_benign = 0
-                sum_malignant = 0
-                
-                for x in preds:
-                        for y in x:
-                                sum_benign = sum_benign + y[0]
-                                sum_malignant = sum_malignant + y[1]
+                index_model = np.where(preds == np.max(preds))
+                index = index_model[0][0]
 
-                result_benign = np.around((sum_benign/5)*100, decimals=2)
-                result_malignant = np.around((sum_malignant/5)*100, decimals=2)
+                model_list_name = ["InceptionResNetV2", "InceptionV3", "ResNet50V2", "ResNet50", "Xception"]
+                model_name = model_list_name[index]
 
-                result_image = []
-
-                if(result == 0):
-                        result_image.append("Benign : ")
-                        result_image.append(str(result_benign) + " %")
+                if(ideal_weighted_ensemble_prediction == 0):
+                        result_image = {
+                                "name":filename,
+                                "result":"Benign",
+                                "props":str(result_model) + " of " + str(model_name) + " model",
+                                "avg":str(result_avg[0][0]),
+                                "wei":str(result_weighted[0][0])
+                        }
                 else:
-                        result_image.append("Malignant : ")
-                        result_image.append(str(result_malignant) + " %")
-
+                        result_image = {
+                                "name":filename,
+                                "result":"Malignant",
+                                "props":str(result_model) + " of " + str(model_name) + " model",
+                                "avg":str(result_avg[0][1]),
+                                "wei":str(result_weighted[0][1])
+                        }
 
                 return Response(result_image, status=status.HTTP_200_OK)
-                # return Response(status=status.HTTP_200_OK)
