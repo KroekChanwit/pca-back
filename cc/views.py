@@ -24,7 +24,7 @@ from keras.applications.inception_resnet_v2 import InceptionResNetV2, preprocess
 base_model_dir = 'C:\\Users\\Chanwit\\Desktop\\project\\Model\\'
 
 weight_list = list(glob.glob(os.path.join(base_model_dir, 
-                                        '*40-04*.hdf5'),
+                                        '*40-03*.hdf5'),
                         recursive=True))
 weight_list.sort()
 
@@ -68,14 +68,19 @@ class PCa(generics.RetrieveUpdateDestroyAPIView):
 
                 summed = np.sum(preds, axis=0)
                 # result = np.argmax(summed, axis=1)
-       
-                ideal_weights = [0.0, 0.2, 0.1, 0.0, 0.4]
+
+                ######## Weight avg fold1 - fold5 ########
+                # ideal_weights = [0.18, 0.2, 0.02, 0.02, 0.18]
+
+                ideal_weights = [0.4, 0.3, 0.0, 0.0, 0.1]
                 ideal_weighted_preds = np.tensordot(preds, ideal_weights, axes=((0),(0)))
                 ideal_weighted_ensemble_prediction = np.argmax(ideal_weighted_preds, axis=1)
 
-                result_model = np.around(np.max(preds*100), decimals=2)
-                result_weighted = np.around(ideal_weighted_preds/0.7*100, decimals=2)
-                result_avg= np.around(summed/5*100, decimals=2)
+                print(ideal_weighted_preds)
+
+                result_model = np.around(np.max(preds), decimals=3)
+                result_weighted = np.around(ideal_weighted_preds, decimals=3)
+                result_avg= np.around(summed/5, decimals=3)
 
                 index_model = np.where(preds == np.max(preds))
                 index = index_model[0][0]
